@@ -1,0 +1,102 @@
+version: '3'
+
+services:
+  db:
+    restart: always
+    image: postgres:15.2
+    container_name: ch-trans-postgres
+    ports:
+      - 4001:5432
+    environment:
+      POSTGRES_DB: ch_trans_db
+      POSTGRES_USER: ch_trans_user
+      POSTGRES_PASSWORD: ch_trans_pass
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - app_net
+
+  pgadmin:
+    restart: always
+    container_name: ch-trans-pgadmin
+    depends_on:
+      - db
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.ru
+      PGADMIN_DEFAULT_PASSWORD: admin
+    expose:
+      - 80
+    ports:
+      - 4002:80
+
+  grafana:
+    restart: always
+    image: grafana/grafana:9.3.6
+    container_name: ch-trans-grafana
+    ports:
+      - 4004:3000
+    volumes:
+      - grafana:/var/lib/grafana
+    networks:
+      - app_net
+
+  redis:
+    image: redis:7.0.8
+    container_name: ch-trans-redis
+    restart: always
+    ports:
+      - '4003:6379'
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis:/data
+    networks:
+      - app_net
+
+  es01:
+    image: elasticsearch:8.8.0
+    restart: always
+    container_name: ch-trans-es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02
+      - cluster.initial_master_nodes=es01,es02
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 4006:9200
+    networks:
+      - app_net
+
+  es02:
+    image: elasticsearch:8.8.0
+    restart: always
+    container_name: ch-trans-es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01
+      - cluster.initial_master_nodes=es01,es02
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  app:
+  db:
+  grafana:
+  redis:
