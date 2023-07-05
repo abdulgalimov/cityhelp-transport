@@ -27,8 +27,6 @@ export interface IDbManagers {
   admins: AdminPgService;
   users: UserPgService;
   profiles: ProfilePgService;
-  drivers: DriverPgService;
-  transportTypes: TransportTypePgService;
 }
 
 export interface IDbData {

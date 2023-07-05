@@ -34,4 +34,8 @@ export class DriversDbService {
   public async find(options: IFindOptions): Promise<IFoundDriver[]> {
     return this.driverEsService.find(options);
   }
+
+  public findByUserId(userId: number): Promise<IDriver | null> {
+    return this.driverPgService.findByUserId(userId);
+  }
 }

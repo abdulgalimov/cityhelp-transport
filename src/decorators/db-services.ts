@@ -34,12 +34,6 @@ export class DbServices implements NestInterceptor, CanActivate {
   @Inject(ProfilePgService)
   private readonly profiles: ProfilePgService;
 
-  @Inject(DriverPgService)
-  private readonly drivers: DriverPgService;
-
-  @Inject(TransportTypePgService)
-  private readonly transportTypes: TransportTypePgService;
-
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     this.init(context);
     return next.handle();
@@ -59,8 +53,6 @@ export class DbServices implements NestInterceptor, CanActivate {
         admins: this.admins,
         users: this.users,
         profiles: this.profiles,
-        drivers: this.drivers,
-        transportTypes: this.transportTypes,
       },
       data: new DbData(),
     };

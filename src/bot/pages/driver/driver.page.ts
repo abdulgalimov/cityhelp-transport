@@ -8,11 +8,14 @@ import { AppConfig } from '../../../config';
 import { WebDataActionTypes } from '../../../types';
 import { htmlEncode } from '../../utils';
 import { DriversDbService } from '../../../database/services';
+import { TransportTypePgService } from '../../../database/pg/services';
 
 @Injectable()
 export class DriverPage extends BasePage {
   @Inject(DriversDbService)
   private driversDbService: DriversDbService;
+  @Inject(TransportTypePgService)
+  private transportTypePgService: TransportTypePgService;
 
   private readonly appConfig: AppConfig;
   constructor(configService: ConfigService) {
@@ -57,7 +60,7 @@ export class DriverPage extends BasePage {
   public async prepare(ctx: BotContext): Promise<void> {
     const { db, user } = ctx.req;
     const [driver] = await Promise.all([
-      db.managers.drivers.findByUserId(user.id),
+      this.driversDbService.findByUserId(user.id),
     ]);
     if (!driver) {
       return this.manager.open(Pages.START, ctx);
@@ -88,7 +91,7 @@ export class DriverPage extends BasePage {
   ): Promise<ResultSendMessage | undefined> {
     const { db } = ctx.req;
     const { driver } = db.data;
-    const transportType = await db.managers.transportTypes.getById(
+    const transportType = await this.transportTypePgService.getById(
       ctx.webApp?.data.transportType,
     );
     if (!transportType) {

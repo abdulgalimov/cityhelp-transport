@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../config';
 import { RegisterPage } from '../driver/register.page';
 import { BotApiService } from '../../api';
-import { BotCommandScopeChat } from '@grammyjs/types/settings';
+import { DriversDbService } from '../../../database/services';
 
 @Injectable()
 export class StartPage extends BasePage {
@@ -16,6 +16,7 @@ export class StartPage extends BasePage {
     private readonly driverPage: RegisterPage,
     configService: ConfigService,
     private readonly botApiService: BotApiService,
+    private readonly driversDbService: DriversDbService,
   ) {
     super({
       name: Pages.START,
@@ -86,7 +87,7 @@ export class StartPage extends BasePage {
 
   private async iAmDriver(ctx: BotContext) {
     const { db, user } = ctx.req;
-    const driver = await db.managers.drivers.findByUserId(user.id);
+    const driver = await this.driversDbService.findByUserId(user.id);
     if (!driver) {
       return this.manager.open(Pages.DRIVER_REGISTER, ctx);
     } else {

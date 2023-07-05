@@ -9,7 +9,11 @@ export class BotService {
   private pageManager: PageManager;
 
   public async update(ctx: BotContext): Promise<UpdateResult | void> {
-    console.log('ctx.session', ctx.session.pageName);
+    console.log(
+      'ctx.session',
+      ctx.session.pageName,
+      JSON.stringify(ctx.update, null, 2),
+    );
     const command = ctx.update.message?.text;
     const pageByCommand = this.pageManager.findByCommand(command!);
     if (pageByCommand) {
