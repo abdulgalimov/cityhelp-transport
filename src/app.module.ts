@@ -8,6 +8,7 @@ import { ApiModule } from './api/api.module';
 import { AuthModule } from './auth/auth.module';
 import { ViewModule } from './view/view.module';
 import { BotModule } from './bot/bot.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { BotModule } from './bot/bot.module';
     }),
     EsModule,
     PgModule,
+    DatabaseModule,
     RedisModule,
     ApiModule,
     BotModule.register(),
@@ -25,6 +27,5 @@ import { BotModule } from './bot/bot.module';
     ViewModule,
   ],
   controllers: [],
-  providers: [],
 })
 export class AppModule {}

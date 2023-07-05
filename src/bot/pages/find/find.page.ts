@@ -8,12 +8,12 @@ import {
   ResultSendMessage,
   UpdateResult,
 } from '../../types';
-import { DriverEsService, IFindOptions } from '../../../database/es/drivers';
 import { InlineQuery, InlineQueryResult } from '@grammyjs/types/inline';
+import { DriversDbService } from '../../../database/services';
 
 @Injectable()
 export class FindPage extends BasePage {
-  constructor(private readonly drivers: DriverEsService) {
+  constructor(private readonly driverDbService: DriversDbService) {
     super({
       name: Pages.FIND,
       command: '/find',
@@ -59,8 +59,6 @@ export class FindPage extends BasePage {
     if (ctx.update.message?.text === 'Поиск транспорта') {
       return this.findMenu(ctx);
     }
-
-    return this.main(ctx);
   }
 
   private findMenu(ctx: BotContext) {
@@ -84,10 +82,14 @@ export class FindPage extends BasePage {
     };
   }
 
-  private async inlineQuery(ctx: BotContext): Promise<ResultAnswerInline> {
+  public async inlineQuery(
+    ctx: BotContext,
+  ): Promise<ResultAnswerInline | undefined> {
+    if (!ctx.update.inline_query) return;
+
     const inlineQuery: InlineQuery = ctx.update.inline_query!;
-    console.log('inlineQuery', inlineQuery);
-    const foundDrivers = await this.drivers.find({
+
+    const foundDrivers = await this.driverDbService.find({
       query: inlineQuery.query,
       location: inlineQuery.location,
     });

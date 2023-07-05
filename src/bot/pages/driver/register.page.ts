@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { BasePage } from '../base.page';
 import { Pages } from '../types';
 import { Methods, UpdateResult } from '../../types';
@@ -6,14 +6,15 @@ import { BotContext } from '../../context';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../config';
 import { ProfileTypes, WebDataActionTypes } from '../../../types';
-import { DriverEsService } from '../../../database/es/drivers';
+import { DriversDbService } from '../../../database/services';
 
 @Injectable()
 export class RegisterPage extends BasePage {
   private readonly appConfig: AppConfig;
   constructor(
     configService: ConfigService,
-    private readonly driverEsService: DriverEsService,
+    @Inject(DriversDbService)
+    private driversDbService: DriversDbService,
   ) {
     super({
       name: Pages.DRIVER_REGISTER,
@@ -57,7 +58,7 @@ export class RegisterPage extends BasePage {
     if (webApp?.action == WebDataActionTypes.REGISTER_DRIVER) {
       const { db, user } = ctx.req;
       const [driver, profile] = await Promise.all([
-        db.managers.drivers.create({
+        this.driversDbService.create({
           user,
           fullName: webApp.data.name,
           transportType: webApp.data.transportType,
@@ -66,8 +67,6 @@ export class RegisterPage extends BasePage {
         }),
         db.managers.profiles.update(user.id, ProfileTypes.DRIVER),
       ]);
-
-      await this.driverEsService.createDriver(driver);
 
       ctx.req.db.data.driver = driver;
       ctx.req.db.data.profile = profile;

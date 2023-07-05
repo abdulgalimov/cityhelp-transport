@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
-import { DriverPgService, TransportTypePgService } from '../../pg/services';
-import { IDriver, ONLINE_PERIOD_SEC } from '../../../types';
-import { IEsDriver, IFindOptions, IFoundDrivers } from './types';
+import { DriverPgService } from '../../pg/services';
+import { IDriver, IFoundDriver } from '../../../types';
+import { IEsDriver, IFindOptions } from './types';
 import { getFindBody } from './body/find.body';
 
 const IndexName = 'drivers';
@@ -12,7 +12,6 @@ export class DriverEsService {
   constructor(
     private readonly es: ElasticsearchService,
     private readonly driversPgService: DriverPgService,
-    private readonly transportTypePgService: TransportTypePgService,
   ) {}
 
   public async reindex() {
@@ -75,7 +74,7 @@ export class DriverEsService {
     });
   }
 
-  public async find(options: IFindOptions): Promise<IFoundDrivers[]> {
+  public async find(options: IFindOptions): Promise<IFoundDriver[]> {
     const body = getFindBody(options);
     const res = await this.es.search<IEsDriver>({
       index: IndexName,
@@ -100,6 +99,18 @@ export class DriverEsService {
         distance,
       };
     });
-    return (await Promise.all(tasks)).filter((res) => !!res) as IFoundDrivers[];
+    return (await Promise.all(tasks)).filter((res) => !!res) as IFoundDriver[];
+  }
+
+  public async updateLocation(driver: IDriver) {
+    /*
+    await this.es.update({
+      id: driver.id.toString(),
+      location: {
+        lat: +driver.latitude,
+        lon: +driver.longitude,
+      },
+    });
+     */
   }
 }

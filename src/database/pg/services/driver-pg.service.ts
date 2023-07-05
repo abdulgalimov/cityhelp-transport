@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan } from 'typeorm';
 import { DriverEntity } from '../entities';
-import { IDriver } from '../../../types';
+import { ICreateDriver, IDriver } from '../../../types';
 
 @Injectable()
 export class DriverPgService {
@@ -11,9 +11,7 @@ export class DriverPgService {
     private driverRepository: Repository<DriverEntity>,
   ) {}
 
-  public async create(
-    data: Omit<IDriver, 'id' | 'lastOnline' | 'latitude' | 'longitude'>,
-  ): Promise<DriverEntity> {
+  public async create(data: ICreateDriver): Promise<DriverEntity> {
     const { raw } = await this.driverRepository.upsert(
       {
         ...data,
@@ -42,20 +40,6 @@ export class DriverPgService {
         user: { id: userId },
       },
       relations: ['transportType'],
-    });
-  }
-
-  public async updateLocation(
-    driver: IDriver,
-    latitude: number,
-    longitude: number,
-  ) {
-    driver.latitude = `${latitude}`;
-    driver.longitude = `${longitude}`;
-    driver.lastOnline = new Date();
-
-    await this.driverRepository.save(driver, {
-      reload: false,
     });
   }
 

@@ -1,14 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DriverEsService } from '../../database/es/drivers';
+import { DriversDbService } from '../../database/services';
 
 @Injectable()
 export class DriversService {
-  constructor(private driverEsService: DriverEsService) {}
+  constructor(private driverDbService: DriversDbService) {}
 
   private logger: Logger = new Logger('DriversService');
 
   public async reindexDb() {
     this.logger.log('reindexDb');
-    return this.driverEsService.reindex();
+    return this.driverDbService.reindex();
   }
 }

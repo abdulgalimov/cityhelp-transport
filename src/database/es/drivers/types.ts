@@ -47,8 +47,3 @@ export interface IEsDriver {
   };
   lastOnline: number;
 }
-
-export interface IFoundDrivers {
-  driver: IDriver;
-  distance?: number;
-}

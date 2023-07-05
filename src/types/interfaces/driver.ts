@@ -16,3 +16,13 @@ export interface IDriver {
   longitude: string;
   lastOnline: Date;
 }
+
+export type ICreateDriver = Omit<
+  IDriver,
+  'id' | 'lastOnline' | 'latitude' | 'longitude'
+>;
+
+export interface IFoundDriver {
+  driver: IDriver;
+  distance?: number;
+}

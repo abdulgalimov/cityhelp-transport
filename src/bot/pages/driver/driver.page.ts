@@ -1,15 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { BasePage } from '../base.page';
 import { Pages } from '../types';
 import { Methods, ResultSendMessage, UpdateResult } from '../../types';
 import { BotContext } from '../../context';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../config';
-import { IDriver, WebDataActionTypes } from '../../../types';
+import { WebDataActionTypes } from '../../../types';
 import { htmlEncode } from '../../utils';
+import { DriversDbService } from '../../../database/services';
 
 @Injectable()
 export class DriverPage extends BasePage {
+  @Inject(DriversDbService)
+  private driversDbService: DriversDbService;
+
   private readonly appConfig: AppConfig;
   constructor(configService: ConfigService) {
     super({
@@ -36,6 +40,12 @@ export class DriverPage extends BasePage {
                 web_app: {
                   url: `${this.appConfig.webUrl}/update-driver?driverId=${driver.id}`,
                 },
+              },
+            ],
+            [
+              {
+                text: 'Отправить гео',
+                request_location: true,
               },
             ],
           ],
@@ -70,7 +80,7 @@ export class DriverPage extends BasePage {
     if (ctx.webApp?.action == WebDataActionTypes.UPDATE_DRIVER) {
       return await this.updateDriver(ctx);
     }
-    return this.main(ctx);
+    //return this.main(ctx);
   }
 
   private async updateDriver(
@@ -90,15 +100,12 @@ export class DriverPage extends BasePage {
         },
       };
     }
-    const updateData: Partial<IDriver> = {
+    await this.driversDbService.update(driver, {
       fullName: ctx.webApp?.data.fullName,
       phone: ctx.webApp?.data.phone,
       carNumber: ctx.webApp?.data.carNumber,
       transportType,
-    };
-    Object.assign(driver, updateData);
-
-    await db.managers.drivers.update(driver.id, updateData);
+    });
 
     return {
       method: Methods.sendMessage,
@@ -116,9 +123,10 @@ export class DriverPage extends BasePage {
     };
   }
 
-  public async updateLocation(ctx: BotContext) {
-    if (!ctx.update.edited_message) return false;
-    const { location } = ctx.update.edited_message;
+  public async updateLocation(ctx: BotContext): Promise<boolean> {
+    const location =
+      ctx.update.edited_message?.location || ctx.update.message?.location;
+
     if (!location) return false;
 
     const { db } = ctx.req;
@@ -129,11 +137,12 @@ export class DriverPage extends BasePage {
 
     const { driver } = db.data;
 
-    await db.managers.drivers.updateLocation(
-      driver,
-      location.latitude,
-      location.longitude,
-    );
+    await this.driversDbService.update(driver, {
+      latitude: `${location.latitude}`,
+      longitude: `${location.longitude}`,
+      lastOnline: new Date(),
+    });
+
     return true;
   }
 }

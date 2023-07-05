@@ -21,6 +21,11 @@ export class BotService {
       return;
     }
 
+    const inlineFind = await this.pageManager.updateInlineFind(ctx);
+    if (inlineFind) {
+      return inlineFind;
+    }
+
     if (!ctx.session.pageName) {
       return this.pageManager.open(Pages.START, ctx);
     }

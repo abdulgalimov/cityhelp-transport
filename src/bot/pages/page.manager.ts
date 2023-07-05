@@ -76,4 +76,8 @@ export class PageManager implements IManager {
   public updateDriverLocation(ctx) {
     return this.driverPage.updateLocation(ctx);
   }
+
+  public updateInlineFind(ctx) {
+    return this.findPage.inlineQuery(ctx);
+  }
 }
