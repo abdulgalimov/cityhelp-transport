@@ -1,8 +1,32 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/main-bot/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/main-bot/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/main-bot",
+  "projects": {
+    "main-bot": {
+      "type": "application",
+      "root": "apps/main-bot",
+      "entryFile": "main",
+      "sourceRoot": "apps/main-bot/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/main-bot/tsconfig.app.json"
+      }
+    },
+    "proxy": {
+      "type": "application",
+      "root": "apps/proxy",
+      "entryFile": "main",
+      "sourceRoot": "apps/proxy/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/proxy/tsconfig.app.json"
+      }
+    }
   }
 }
