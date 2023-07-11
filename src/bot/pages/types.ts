@@ -20,6 +20,7 @@ export interface IPage {
   prepare(ctx: BotContext): Promise<void>;
   open(ctx: BotContext): Promise<UpdateResult | void>;
   execute(ctx: BotContext): Promise<UpdateResult | void>;
+  tryForceUpdate(ctx: BotContext): Promise<UpdateResult | boolean | void>;
 }
 
 export interface IManager {

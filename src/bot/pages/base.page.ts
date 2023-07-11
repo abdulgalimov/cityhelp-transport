@@ -19,5 +19,13 @@ export class BasePage implements IPage {
     ctx.session.pageName = this.options.name;
   }
 
-  public async execute(ctx: BotContext): Promise<UpdateResult | void> {}
+  public async execute(ctx: BotContext): Promise<UpdateResult | void> {
+    return;
+  }
+
+  public async tryForceUpdate(
+    ctx: BotContext,
+  ): Promise<UpdateResult | boolean | void> {
+    return;
+  }
 }

@@ -20,14 +20,9 @@ export class BotService {
       return this.pageManager.open(pageByCommand, ctx);
     }
 
-    const updateLocation = await this.pageManager.updateDriverLocation(ctx);
-    if (updateLocation) {
+    const forceUpdate = await this.pageManager.tryForceUpdate(ctx);
+    if (forceUpdate) {
       return;
-    }
-
-    const inlineFind = await this.pageManager.updateInlineFind(ctx);
-    if (inlineFind) {
-      return inlineFind;
     }
 
     if (!ctx.session.pageName) {

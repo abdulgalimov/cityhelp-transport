@@ -61,6 +61,15 @@ export class FindPage extends BasePage {
     }
   }
 
+  public async tryForceUpdate(
+    ctx: BotContext,
+  ): Promise<UpdateResult | boolean | void> {
+    const inlineResult = await this.inlineQuery(ctx);
+    if (inlineResult) {
+      return inlineResult;
+    }
+  }
+
   private findMenu(ctx: BotContext) {
     return {
       method: Methods.sendMessage,
@@ -82,7 +91,7 @@ export class FindPage extends BasePage {
     };
   }
 
-  public async inlineQuery(
+  private async inlineQuery(
     ctx: BotContext,
   ): Promise<ResultAnswerInline | undefined> {
     if (!ctx.update.inline_query) return;

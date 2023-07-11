@@ -15,6 +15,7 @@ type PartialRecord<K extends keyof any, T> = {
 @Injectable()
 export class PageManager implements IManager {
   private readonly pages: PartialRecord<Pages, IPage> = {};
+  private readonly pagesList: Array<IPage> = [];
   private readonly pagesByCommand: Record<string, IPage> = {};
 
   constructor(
@@ -37,6 +38,7 @@ export class PageManager implements IManager {
       this.pagesByCommand[page.options.command] = page;
     }
     this.pages[page.options.name] = page;
+    this.pagesList.push(page);
   }
 
   public findByCommand(command: string): Pages | null {
@@ -73,11 +75,12 @@ export class PageManager implements IManager {
     return page.execute(ctx);
   }
 
-  public updateDriverLocation(ctx) {
-    return this.driverPage.updateLocation(ctx);
-  }
-
-  public updateInlineFind(ctx) {
-    return this.findPage.inlineQuery(ctx);
+  public async tryForceUpdate(
+    ctx: BotContext,
+  ): Promise<UpdateResult | boolean | void> {
+    for (let i = 0; i < this.pagesList.length; i++) {
+      const forceResult = await this.pagesList[i].tryForceUpdate(ctx);
+      if (forceResult) return forceResult;
+    }
   }
 }

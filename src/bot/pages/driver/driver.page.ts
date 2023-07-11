@@ -76,14 +76,23 @@ export class DriverPage extends BasePage {
   }
 
   public async execute(ctx: BotContext): Promise<UpdateResult | void> {
-    if (ctx.update.edited_message?.location) {
-      await this.updateLocation(ctx);
+    const updateLocation = await this.updateLocation(ctx);
+    if (updateLocation) {
       return;
     }
+
     if (ctx.webApp?.action == WebDataActionTypes.UPDATE_DRIVER) {
       return await this.updateDriver(ctx);
     }
-    //return this.main(ctx);
+  }
+
+  public async tryForceUpdate(
+    ctx: BotContext,
+  ): Promise<UpdateResult | boolean | void> {
+    const updateLocation = await this.updateLocation(ctx);
+    if (updateLocation) {
+      return true;
+    }
   }
 
   private async updateDriver(
@@ -126,7 +135,7 @@ export class DriverPage extends BasePage {
     };
   }
 
-  public async updateLocation(ctx: BotContext): Promise<boolean> {
+  private async updateLocation(ctx: BotContext): Promise<boolean> {
     const location =
       ctx.update.edited_message?.location || ctx.update.message?.location;
 
